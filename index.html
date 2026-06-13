@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FarmAI — Smart Farming Assistant</title>
+    <meta name="description"
+        content="AI-powered smart farming assistant for plant disease detection, crop recommendation, live weather, and expert farming advice.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Variables ─────────────────────── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --green-50: #f0fdf4;
+            --green-100: #dcfce7;
+            --green-200: #bbf7d0;
+            --green-300: #86efac;
+            --green-400: #4ade80;
+            --green-500: #22c55e;
+            --green-600: #16a34a;
+            --green-700: #15803d;
+            --green-800: #166534;
+            --green-900: #14532d;
+            --green-950: #052e16;
+            --white: #ffffff;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --red-500: #ef4444;
+            --amber-500: #f59e0b;
+            --blue-500: #3b82f6;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, .05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, .07), 0 2px 4px -2px rgba(0, 0, 0, .05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, .08), 0 4px 6px -4px rgba(0, 0, 0, .05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, .08), 0 8px 10px -6px rgba(0, 0, 0, .04);
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --transition: all .25s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        /* ── Dark Mode Variables ──────────────────────── */
+        body.dark {
+            --green-50: #052e16;
+            --green-100: #14532d;
+            --green-200: #166534;
+            --green-300: #15803d;
+            --green-400: #16a34a;
+            --green-500: #22c55e;
+            --green-600: #4ade80;
+            --green-700: #86efac;
+            --green-800: #bbf7d0;
+            --green-900: #dcfce7;
+            --white: #111827;
+            --gray-50: #1f2937;
+            --gray-100: #374151;
+            --gray-200: #4b5563;
+            --gray-300: #6b7280;
+            --gray-400: #9ca3af;
+            --gray-500: #d1d5db;
+            --gray-600: #e5e7eb;
+            --gray-700: #f3f4f6;
+            --gray-800: #f9fafb;
+            --gray-900: #ffffff;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, .3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, .4), 0 2px 4px -2px rgba(0, 0, 0, .3);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, .5), 0 4px 6px -4px rgba(0, 0, 0, .4);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, .5), 0 8px 10px -6px rgba(0, 0, 0, .4);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--green-50) 0%, var(--white) 50%, var(--green-50) 100%);
+            color: var(--gray-800);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Header ───────────────────────────────── */
+        .header {
+            background: rgba(22, 163, 74, 0.85);
+            /* Semi-transparent green */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .15);
+            transition: background var(--transition);
+        }
+
+        body.dark .header {
+            background: rgba(20, 83, 45, 0.85);
+            /* Semi-transparent dark green */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .4);
+        }
+
+        .header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 24px 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, .2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .brand h1 {
+            color: var(--white);
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -.5px;
+        }
+
+        .brand p {
+            color: rgba(255, 255, 255, .8);
+            font-size: 13px;
+            font-weight: 400;
+        }
+
+        /* ── Navigation ───────────────────────────── */
+        .nav-tabs {
+            display: flex;
+            gap: 4px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .nav-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-tab {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            color: rgba(255, 255, 255, .7);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 10px 10px 0 0;
+            transition: var(--transition);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-tab:hover {
+            color: var(--white);
+            background: rgba(255, 255, 255, .1);
+        }
+
+        .nav-tab.active {
+            color: var(--green-700);
+            background: var(--white);
+            font-weight: 600;
+        }
+
+        .nav-tab .tab-icon {
+            font-size: 18px;
+        }
+
+        /* ── Main Content ─────────────────────────── */
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn .35s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes staggerFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── Cards ─────────────────────────────────── */
+        .card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 28px;
+            border: 1px solid var(--green-100);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--green-800);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title .icon {
+            font-size: 24px;
+        }
+
+        .card-subtitle {
+            color: var(--gray-500);
+            font-size: 14px;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        /* ── Upload Zone ──────────────────────────── */
+        .upload-zone {
+            border: 2px dashed var(--green-300);
+            border-radius: var(--radius-lg);
+            padding: 48px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--green-50);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 250px;
+        }
+
+        .upload-zone:focus-within {
+            border-color: var(--green-500);
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, .15);
+        }
+
+        .upload-zone:hover,
+        .upload-zone.drag-over {
+            border-color: var(--green-500);
+            background: var(--green-100);
+            transform: scale(1.01);
+        }
+
+        .upload-zone .upload-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            transition: var(--transition);
+        }
+
+        .upload-zone h3 {
+            color: var(--green-700);
+            font-size: 16px;
+            margin-bottom: 4px;
+            transition: var(--transition);
+        }
+
+        .upload-zone p {
+            color: var(--gray-500);
+            font-size: 13px;
+            transition: var(--transition);
+        }
+
+        .upload-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .upload-zone.has-image .upload-icon,
+        .upload-zone.has-image h3,
+        .upload-zone.has-image p {
+            opacity: 0;
+            pointer-events: none;
+            position: absolute;
+        }
+
+        .image-preview {
+            display: none;
+            text-align: center;
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            pointer-events: none;
+            /* Let clicks pass through to the input */
+        }
+
+        .upload-zone.has-image .image-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--green-50);
+            padding: 10px;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 190px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            object-fit: contain;
+        }
+
+        .image-preview .file-name {
+            margin-top: 8px;
+            font-size: 13px;
+            color: var(--gray-600);
+            background: rgba(255, 255, 255, .8);
+            padding: 2px 8px;
+            border-radius: 12px;
+            backdrop-filter: blur(4px);
+        }
+
+        body.dark .image-preview .file-name {
+            background: rgba(0, 0, 0, .6);
+            color: var(--gray-300);
+        }
+
+        /* ── Buttons ──────────────────────────────── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 28px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--green-600), var(--green-500));
+            color: var(--white);
+            box-shadow: 0 4px 14px rgba(22, 163, 74, .35);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(22, 163, 74, .45);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: var(--green-50);
+            color: var(--green-700);
+            border: 1px solid var(--green-200);
+        }
+
+        .btn-secondary:hover {
+            background: var(--green-100);
+            transform: translateY(-1px);
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        /* ── Form Inputs ──────────────────────────── */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 6px;
+        }
+
+        /* Tooltip styles */
+        .tooltip-icon {
+            color: var(--gray-400);
+            cursor: help;
+            font-size: 14px;
+            position: relative;
+            display: flex;
+        }
+
+        .tooltip-icon:hover {
+            color: var(--green-500);
+        }
+
+        .tooltip-icon::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 150%;
+            left: 50%;
+            transform: translateX(-50%) translateY(5px);
+            background: var(--gray-800);
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 400;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all .2s ease;
+            box-shadow: var(--shadow-md);
+            z-index: 10;
+        }
+
+        .tooltip-icon::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(5px);
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--gray-800) transparent transparent transparent;
+            opacity: 0;
+            visibility: hidden;
+            transition: all .2s ease;
+            z-index: 10;
+        }
+
+        .tooltip-icon:hover::after,
+        .tooltip-icon:hover::before {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        body.dark .tooltip-icon::after {
+            background: var(--gray-200);
+            color: var(--gray-900);
+        }
+
+        body.dark .tooltip-icon::before {
+            border-color: var(--gray-200) transparent transparent transparent;
+        }
+
+        .form-group label span {
+            color: var(--gray-400);
+            font-weight: 400;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid var(--gray-200);
+            border-radius: var(--radius);
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--gray-800);
+            transition: var(--transition);
+            background: var(--white);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--green-500);
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, .15);
+        }
+
+        .form-group input.invalid {
+            border-color: var(--red-500);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, .1);
+        }
+
+        .form-group .range-hint {
+            font-size: 11px;
+            color: var(--gray-400);
+            margin-top: 4px;
+        }
+
+        /* ── Results ──────────────────────────────── */
+        .results-container {
+            margin-top: 24px;
+            display: none;
+            animation: fadeIn .4s ease;
+        }
+
+        .results-container.visible {
+            display: block;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px 24px;
+            background: linear-gradient(135deg, var(--green-600), var(--green-500));
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            color: var(--white);
+        }
+
+        .result-header .result-icon {
+            font-size: 36px;
+        }
+
+        .result-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .result-header p {
+            font-size: 14px;
+            opacity: .9;
+        }
+
+        .result-body {
+            background: var(--white);
+            border: 1px solid var(--green-200);
+            border-top: none;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            padding: 24px;
+        }
+
+        /* ── Confidence Bars ──────────────────────── */
+        .prediction-item {
+            margin-bottom: 16px;
+            padding: 16px;
+            border-radius: var(--radius);
+            background: var(--gray-50);
+            border: 1px solid var(--gray-100);
+            transition: var(--transition);
+        }
+
+        .prediction-item:hover {
+            background: var(--green-50);
+            border-color: var(--green-200);
+        }
+
+        .prediction-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .pred-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .pred-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--gray-800);
+        }
+
+        .pred-conf {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--green-600);
+        }
+
+        .pred-bar {
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .pred-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--green-500), var(--green-400));
+            transition: width .8s cubic-bezier(.4, 0, .2, 1);
+            width: 0;
+        }
+
+        .pred-treatment {
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: var(--green-50);
+            border-left: 3px solid var(--green-400);
+            border-radius: 0 8px 8px 0;
+            font-size: 13px;
+            color: var(--gray-600);
+            line-height: 1.5;
+        }
+
+        .pred-treatment strong {
+            color: var(--green-700);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        /* ── Crop Results ─────────────────────────── */
+        .crop-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .crop-card {
+            text-align: center;
+            padding: 24px 16px;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, var(--green-50), var(--white));
+            border: 1px solid var(--green-200);
+            transition: var(--transition);
+        }
+
+        .crop-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .crop-card .crop-emoji {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        .crop-card h4 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--green-800);
+            text-transform: capitalize;
+            margin-bottom: 6px;
+        }
+
+        .crop-card .crop-conf {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--green-600);
+        }
+
+        .crop-card .crop-conf span {
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--gray-400);
+        }
+
+        .crop-rank {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .rank-1 {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .rank-2 {
+            background: var(--gray-100);
+            color: var(--gray-600);
+        }
+
+        .rank-3 {
+            background: #fed7aa;
+            color: #9a3412;
+        }
+
+        /* ── Weather Card ─────────────────────────── */
+        .weather-search {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .weather-search input {
+            flex: 1;
+            padding: 14px 20px;
+            border: 1.5px solid var(--gray-200);
+            border-radius: var(--radius);
+            font-family: inherit;
+            font-size: 15px;
+        }
+
+        .weather-search input:focus {
+            outline: none;
+            border-color: var(--green-500);
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, .15);
+        }
+
+        .weather-card-display {
+            display: none;
+            padding: 32px;
+            border-radius: var(--radius-xl);
+            background: linear-gradient(135deg, var(--green-600) 0%, #0ea5e9 100%);
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .weather-card-display.visible {
+            display: block;
+            animation: fadeIn .4s ease;
+        }
+
+        .weather-card-display::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -30%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, .08);
+            border-radius: 50%;
+        }
+
+        .weather-city {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .weather-condition {
+            font-size: 14px;
+            opacity: .85;
+            margin-bottom: 16px;
+            text-transform: capitalize;
+        }
+
+        .weather-icon {
+            width: 80px;
+            height: 80px;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, .2));
+        }
+
+        .weather-temp {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1;
+            margin: 8px 0 20px;
+        }
+
+        .weather-temp span {
+            font-size: 24px;
+            font-weight: 400;
+            vertical-align: super;
+        }
+
+        .weather-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, .2);
+        }
+
+        .weather-detail-item {
+            text-align: center;
+        }
+
+        .weather-detail-item .detail-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .weather-detail-item .detail-label {
+            font-size: 12px;
+            opacity: .75;
+            margin-top: 2px;
+        }
+
+        .autofill-bar {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .autofill-bar.visible {
+            display: block;
+            animation: fadeIn .3s ease;
+        }
+
+        /* ── Chat ──────────────────────────────────── */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 240px);
+            min-height: 500px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: var(--gray-300);
+            border-radius: 3px;
+        }
+
+        .chat-bubble {
+            max-width: 80%;
+            padding: 14px 18px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.6;
+            animation: fadeIn .3s ease;
+            word-wrap: break-word;
+        }
+
+        .chat-bubble.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--green-600), var(--green-500));
+            color: var(--white);
+            border-bottom-right-radius: 6px;
+        }
+
+        .chat-bubble.assistant {
+            align-self: flex-start;
+            background: var(--gray-100);
+            color: var(--gray-800);
+            border-bottom-left-radius: 6px;
+            border: 1px solid var(--gray-200);
+        }
+
+        .chat-bubble.assistant .bubble-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--green-600);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .chat-input-bar {
+            display: flex;
+            gap: 8px;
+            padding: 16px 0 0;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .chat-input-bar input {
+            flex: 1;
+            padding: 14px 20px;
+            border: 1.5px solid var(--gray-200);
+            border-radius: 50px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .chat-input-bar input:focus {
+            outline: none;
+            border-color: var(--green-500);
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, .15);
+        }
+
+        .chat-input-bar .btn {
+            border-radius: 50px;
+            padding: 14px 24px;
+        }
+
+        /* ── Loading Skeleton (replacing simple spinner) ──────────────────────── */
+        .spinner {
+            display: none;
+        }
+
+        .spinner.visible {
+            display: block;
+        }
+
+        .skeleton {
+            background: var(--gray-100);
+            background: linear-gradient(110deg, var(--gray-100) 8%, var(--gray-200) 18%, var(--gray-100) 33%);
+            background-size: 200% 100%;
+            animation: 1.5s shine linear infinite;
+            border-radius: 6px;
+        }
+
+        @keyframes shine {
+            to {
+                background-position-x: -200%;
+            }
+        }
+
+        .skeleton-loader {
+            padding: 24px;
+            border: 1px solid var(--green-100);
+            border-radius: var(--radius-lg);
+            background: var(--white);
+            margin-top: 24px;
+        }
+
+        .skeleton-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .skeleton-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+        }
+
+        .skeleton-title {
+            width: 150px;
+            height: 20px;
+            margin-bottom: 8px;
+        }
+
+        .skeleton-subtitle {
+            width: 100px;
+            height: 14px;
+        }
+
+        .skeleton-item {
+            height: 60px;
+            margin-bottom: 12px;
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        /* ── Toast ─────────────────────────────────── */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            padding: 14px 24px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: var(--shadow-xl);
+            animation: slideIn .3s ease, fadeOut .3s ease 3.5s forwards;
+            max-width: 380px;
+        }
+
+        .toast.error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .toast.success {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .toast.info {
+            background: #eff6ff;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+
+        /* ── Welcome / Empty States ───────────────── */
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--gray-400);
+        }
+
+        .empty-state .empty-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .empty-state h3 {
+            color: var(--gray-500);
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .empty-state p {
+            font-size: 13px;
+        }
+
+        /* ── Responsive ───────────────────────────── */
+        @media (max-width: 768px) {
+            .header-inner {
+                padding: 12px 16px 0;
+            }
+
+            .brand h1 {
+                font-size: 20px;
+            }
+
+            .nav-tab {
+                padding: 8px 14px;
+                font-size: 13px;
+            }
+
+            .nav-tab .tab-label {
+                display: none;
+            }
+
+            .nav-tab .tab-icon {
+                font-size: 20px;
+            }
+
+            .main {
+                padding: 16px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .crop-results {
+                grid-template-columns: 1fr;
+            }
+
+            .weather-details {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+
+            .weather-temp {
+                font-size: 42px;
+            }
+
+            .chat-bubble {
+                max-width: 90%;
+            }
+
+            .chat-container {
+                height: calc(100vh - 200px);
+                min-height: 400px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .weather-search {
+                flex-direction: column;
+            }
+
+            .weather-details {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <div class="brand">
+                <div class="brand-icon">🌿</div>
+                <div>
+                    <h1>FarmAI</h1>
+                    <p>Smart Farming Assistant</p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                <nav class="nav-tabs">
+                    <button class="nav-tab active" data-tab="disease" id="tab-disease">
+                        <span class="tab-icon">🔬</span>
+                        <span class="tab-label">Disease Detector</span>
+                    </button>
+                    <button class="nav-tab" data-tab="crop" id="tab-crop">
+                        <span class="tab-icon">🌾</span>
+                        <span class="tab-label">Crop Recommender</span>
+                    </button>
+                    <button class="nav-tab" data-tab="weather" id="tab-weather">
+                        <span class="tab-icon">🌤️</span>
+                        <span class="tab-label">Weather</span>
+                    </button>
+                    <button class="nav-tab" data-tab="chat" id="tab-chat">
+                        <span class="tab-icon">🤖</span>
+                        <span class="tab-label">AI Assistant</span>
+                    </button>
+                </nav>
+                <button id="themeToggleBtn"
+                    style="background: transparent; border: none; cursor: pointer; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; transition: var(--transition); color: white; font-size: 20px;">
+                    🌙
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+
+        <!-- ═══ Tab 1: Disease Detector ═══ -->
+        <section class="tab-content active" id="content-disease">
+            <div class="card">
+                <h2 class="card-title"><span class="icon">🔬</span> Plant Disease Detector</h2>
+                <p class="card-subtitle">Upload a leaf image and our AI will identify diseases with treatment
+                    recommendations.</p>
+
+                <div class="upload-zone" id="uploadZone">
+                    <input type="file" accept="image/*" id="diseaseImageInput" title="Upload leaf image">
+                    <div class="image-preview" id="imagePreview">
+                        <img id="previewImg" src="" alt="Preview">
+                        <p class="file-name" id="fileName"></p>
+                    </div>
+                    <div class="upload-icon">📤</div>
+                    <h3>Drop your leaf image here</h3>
+                    <p>or click to browse · JPG, PNG, WEBP</p>
+                </div>
+
+                <div style="margin-top: 20px; text-align: center;">
+                    <button class="btn btn-primary" id="analyzeDiseaseBtn" disabled>
+                        🔍 Analyze Leaf
+                    </button>
+                </div>
+
+                <div class="spinner skeleton-loader" id="diseaseSpinner">
+                    <div class="skeleton-header">
+                        <div class="skeleton skeleton-icon"></div>
+                        <div>
+                            <div class="skeleton skeleton-title"></div>
+                            <div class="skeleton skeleton-subtitle"></div>
+                        </div>
+                    </div>
+                    <div class="skeleton skeleton-item"></div>
+                    <div class="skeleton skeleton-item"></div>
+                    <div class="skeleton skeleton-item"></div>
+                </div>
+
+                <div class="results-container" id="diseaseResults">
+                    <div class="result-header">
+                        <div class="result-icon">🩺</div>
+                        <div>
+                            <h3 id="diseaseName">—</h3>
+                            <p id="diseaseConf">Confidence: —</p>
+                        </div>
+                    </div>
+                    <div class="result-body">
+                        <h4
+                            style="font-size:14px; font-weight:600; color:var(--gray-500); margin-bottom:16px; text-transform:uppercase; letter-spacing:.5px;">
+                            Top 5 Predictions</h4>
+                        <div id="top5Container"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ Tab 2: Crop Recommender ═══ -->
+        <section class="tab-content" id="content-crop">
+            <div class="card">
+                <h2 class="card-title"><span class="icon">🌾</span> Crop Recommender</h2>
+                <p class="card-subtitle">Enter your soil and climate parameters to get AI-powered crop recommendations.
+                </p>
+
+                <form id="cropForm" class="form-grid">
+                    <div class="form-group">
+                        <label>Nitrogen (N) <span>kg/ha</span> <span class="tooltip-icon"
+                                data-tooltip="Amount of Nitrogen in the soil">ℹ️</span></label>
+                        <input type="number" id="cropN" min="0" max="140" step="1" placeholder="0 – 140" required>
+                        <div class="range-hint">Range: 0 – 140</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Phosphorus (P) <span>kg/ha</span> <span class="tooltip-icon"
+                                data-tooltip="Amount of Phosphorus in the soil">ℹ️</span></label>
+                        <input type="number" id="cropP" min="5" max="145" step="1" placeholder="5 – 145" required>
+                        <div class="range-hint">Range: 5 – 145</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Potassium (K) <span>kg/ha</span> <span class="tooltip-icon"
+                                data-tooltip="Amount of Potassium in the soil">ℹ️</span></label>
+                        <input type="number" id="cropK" min="5" max="205" step="1" placeholder="5 – 205" required>
+                        <div class="range-hint">Range: 5 – 205</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Temperature <span>°C</span> <span class="tooltip-icon"
+                                data-tooltip="Average local temperature">ℹ️</span></label>
+                        <input type="number" id="cropTemp" min="8" max="45" step="0.1" placeholder="8 – 45" required>
+                        <div class="range-hint">Range: 8 – 45 °C</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Humidity <span>%</span> <span class="tooltip-icon"
+                                data-tooltip="Average relative humidity">ℹ️</span></label>
+                        <input type="number" id="cropHumidity" min="14" max="100" step="0.1" placeholder="14 – 100"
+                            required>
+                        <div class="range-hint">Range: 14 – 100%</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Soil pH <span class="tooltip-icon"
+                                data-tooltip="Acidity or alkalinity of the soil">ℹ️</span></label>
+                        <input type="number" id="cropPH" min="3.5" max="9.5" step="0.1" placeholder="3.5 – 9.5"
+                            required>
+                        <div class="range-hint">Range: 3.5 – 9.5</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Rainfall <span>mm</span> <span class="tooltip-icon"
+                                data-tooltip="Average yearly rainfall">ℹ️</span></label>
+                        <input type="number" id="cropRainfall" min="20" max="300" step="0.1" placeholder="20 – 300"
+                            required>
+                        <div class="range-hint">Range: 20 – 300 mm</div>
+                    </div>
+                </form>
+
+                <div style="margin-top: 24px; text-align: center;">
+                    <button class="btn btn-primary" id="recommendCropBtn">
+                        🌱 Get Recommendations
+                    </button>
+                </div>
+
+                <div class="spinner skeleton-loader" id="cropSpinner">
+                    <div class="skeleton-header">
+                        <div class="skeleton skeleton-icon"></div>
+                        <div>
+                            <div class="skeleton skeleton-title"></div>
+                            <div class="skeleton skeleton-subtitle" style="width: 200px;">Analyzing parameters...</div>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="skeleton skeleton-item" style="height: 120px;"></div>
+                        <div class="skeleton skeleton-item" style="height: 120px;"></div>
+                        <div class="skeleton skeleton-item" style="height: 120px;"></div>
+                    </div>
+                </div>
+
+                <div class="results-container" id="cropResults">
+                    <div class="result-header">
+                        <div class="result-icon">🏆</div>
+                        <div>
+                            <h3>Top Crop Recommendations</h3>
+                            <p>Based on your soil and climate data</p>
+                        </div>
+                    </div>
+                    <div class="result-body">
+                        <div class="crop-results" id="cropResultsGrid"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ Tab 3: Weather ═══ -->
+        <section class="tab-content" id="content-weather">
+            <div class="card">
+                <h2 class="card-title"><span class="icon">🌤️</span> Live Weather</h2>
+                <p class="card-subtitle">Check current weather conditions for any city and auto-fill crop parameters.
+                </p>
+
+                <div class="weather-search">
+                    <input type="text" id="weatherCityInput" placeholder="Enter city name (e.g., Mumbai, London)">
+                    <button class="btn btn-primary" id="getWeatherBtn">
+                        🔍 Search
+                    </button>
+                </div>
+
+                <div class="spinner skeleton-loader" id="weatherSpinner">
+                    <div class="skeleton skeleton-item" style="height: 250px; border-radius: 20px;"></div>
+                </div>
+
+                <div class="weather-card-display" id="weatherDisplay">
+                    <p class="weather-city" id="weatherCity">—</p>
+                    <p class="weather-condition" id="weatherCondition">—</p>
+                    <img class="weather-icon" id="weatherIcon" src="" alt="weather">
+                    <div class="weather-temp" id="weatherTemp">—<span>°C</span></div>
+                    <div class="weather-details">
+                        <div class="weather-detail-item">
+                            <div class="detail-value" id="weatherHumidity">—</div>
+                            <div class="detail-label">💧 Humidity</div>
+                        </div>
+                        <div class="weather-detail-item">
+                            <div class="detail-value" id="weatherRainfall">—</div>
+                            <div class="detail-label">🌧️ Rainfall</div>
+                        </div>
+                        <div class="weather-detail-item">
+                            <div class="detail-value" id="weatherWind">—</div>
+                            <div class="detail-label">💨 Wind</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="autofill-bar" id="autofillBar">
+                    <button class="btn btn-secondary btn-full" id="autofillBtn">
+                        ✨ Auto-fill Crop Recommender Form with Weather Data
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ Tab 4: AI Assistant ═══ -->
+        <section class="tab-content" id="content-chat">
+            <div class="card" style="padding: 16px 20px;">
+                <h2 class="card-title" style="margin-bottom: 4px;"><span class="icon">🤖</span> AI Farming Assistant
+                </h2>
+                <p class="card-subtitle" style="margin-bottom: 12px;">Ask me anything about farming, diseases, crops, or
+                    soil management.</p>
+
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="empty-state" id="chatEmpty">
+                            <div class="empty-icon">💬</div>
+                            <h3>Start a conversation</h3>
+                            <p>Ask about plant care, disease treatment, soil health, and more</p>
+                        </div>
+                    </div>
+
+                    <div class="spinner skeleton-loader" id="chatSpinner"
+                        style="padding: 14px 18px; max-width: 60%; align-self: flex-start; margin-left: 4px; border-radius: 18px; border-bottom-left-radius: 6px;">
+                        <div class="skeleton skeleton-title" style="width: 100px; height: 12px; margin-bottom: 8px;">
+                        </div>
+                        <div class="skeleton skeleton-subtitle" style="width: 150px; height: 12px; margin-bottom: 5px;">
+                        </div>
+                        <div class="skeleton skeleton-subtitle" style="width: 120px; height: 12px;"></div>
+                    </div>
+
+                    <div class="chat-input-bar">
+                        <input type="text" id="chatInput" placeholder="Type your farming question..."
+                            autocomplete="off">
+                        <button class="btn btn-primary" id="chatSendBtn">
+                            ➤
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // ══════════════════════════════════════════════════
+        //  THEME TOGGLE
+        // ══════════════════════════════════════════════════
+        const themeBtn = document.getElementById('themeToggleBtn');
+        const savedTheme = localStorage.getItem('farmai_theme') || 'light';
+        if (savedTheme === 'dark') { document.body.classList.add('dark'); themeBtn.textContent = '☀️'; }
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            themeBtn.textContent = isDark ? '☀️' : '🌙';
+            localStorage.setItem('farmai_theme', isDark ? 'dark' : 'light');
+        });
+
+        // ══════════════════════════════════════════════════
+        //  NAVIGATION
+        // ══════════════════════════════════════════════════
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById('content-' + tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        // ══════════════════════════════════════════════════
+        //  TOAST NOTIFICATIONS
+        // ══════════════════════════════════════════════════
+        function showToast(message, type = 'error') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        // ══════════════════════════════════════════════════
+        //  FEATURE 1: DISEASE DETECTOR
+        // ══════════════════════════════════════════════════
+        const uploadZone = document.getElementById('uploadZone');
+        const diseaseInput = document.getElementById('diseaseImageInput');
+        const previewDiv = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        const fileNameEl = document.getElementById('fileName');
+        const analyzeBtn = document.getElementById('analyzeDiseaseBtn');
+        let selectedFile = null;
+
+        // Drag & Drop
+        uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+        uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('drag-over');
+            if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+        });
+
+        diseaseInput.addEventListener('change', (e) => {
+            if (e.target.files.length) handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) { showToast('Please select an image file'); return; }
+            selectedFile = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImg.src = e.target.result;
+                uploadZone.classList.add('has-image');
+                fileNameEl.textContent = file.name;
+                analyzeBtn.disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        analyzeBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+            const spinner = document.getElementById('diseaseSpinner');
+            const results = document.getElementById('diseaseResults');
+            results.classList.remove('visible');
+            spinner.classList.add('visible');
+            analyzeBtn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+                const resp = await fetch('/predict-disease', { method: 'POST', body: formData });
+                if (!resp.ok) { const err = await resp.json(); throw new Error(err.detail || 'Prediction failed'); }
+                const data = await resp.json();
+                displayDiseaseResults(data);
+            } catch (err) {
+                showToast(err.message);
+            } finally {
+                spinner.classList.remove('visible');
+                analyzeBtn.disabled = false;
+            }
+        });
+
+        function displayDiseaseResults(data) {
+            const results = document.getElementById('diseaseResults');
+            document.getElementById('diseaseName').textContent = formatDiseaseName(data.prediction);
+            document.getElementById('diseaseConf').textContent = `Confidence: ${data.confidence}%`;
+
+            const container = document.getElementById('top5Container');
+            container.innerHTML = '';
+            data.top5.forEach((pred, i) => {
+                const item = document.createElement('div');
+                item.className = 'prediction-item';
+                item.style.opacity = '0';
+                item.style.animation = `staggerFadeIn 0.4s ease forwards ${i * 0.1}s`;
+                item.innerHTML = `
+            <div class="pred-header">
+                <span class="pred-name">${i + 1}. ${formatDiseaseName(pred.disease)}</span>
+                <span class="pred-conf">${pred.confidence}%</span>
+            </div>
+            <div class="pred-bar"><div class="pred-bar-fill" style="width:0"></div></div>
+            <div class="pred-treatment">
+                <strong>💊 Treatment</strong><br>${pred.treatment}
+            </div>
+        `;
+                container.appendChild(item);
+                // animate bar
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        item.querySelector('.pred-bar-fill').style.width = pred.confidence + '%';
+                    });
+                });
+            });
+            results.classList.add('visible');
+        }
+
+        function formatDiseaseName(name) {
+            return name.replace(/__/g, ' — ').replace(/_/g, ' ');
+        }
+
+        // ══════════════════════════════════════════════════
+        //  FEATURE 2: CROP RECOMMENDER
+        // ══════════════════════════════════════════════════
+        const cropEmojis = {
+            apple: '🍎', banana: '🍌', blackgram: '🫘', chickpea: '🫘', coconut: '🥥',
+            coffee: '☕', cotton: '🧵', grapes: '🍇', jute: '🌿', kidneybeans: '🫘',
+            lentil: '🫘', maize: '🌽', mango: '🥭', mothbeans: '🫘', mungbean: '🫘',
+            muskmelon: '🍈', orange: '🍊', papaya: '🍈', pigeonpeas: '🫘',
+            pomegranate: '🍎', rice: '🍚', watermelon: '🍉'
+        };
+
+        document.getElementById('recommendCropBtn').addEventListener('click', async () => {
+            const fields = {
+                N: 'cropN', P: 'cropP', K: 'cropK', temperature: 'cropTemp',
+                humidity: 'cropHumidity', ph: 'cropPH', rainfall: 'cropRainfall'
+            };
+            const body = {};
+            let valid = true;
+
+            for (const [key, id] of Object.entries(fields)) {
+                const input = document.getElementById(id);
+                const val = parseFloat(input.value);
+                if (isNaN(val) || val < parseFloat(input.min) || val > parseFloat(input.max)) {
+                    input.classList.add('invalid');
+                    valid = false;
+                } else {
+                    input.classList.remove('invalid');
+                    body[key] = val;
+                }
+            }
+
+            if (!valid) { showToast('Please fill all fields with valid values within the allowed range'); return; }
+
+            const spinner = document.getElementById('cropSpinner');
+            const results = document.getElementById('cropResults');
+            results.classList.remove('visible');
+            spinner.classList.add('visible');
+
+            try {
+                const resp = await fetch('/recommend-crop', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                if (!resp.ok) { const err = await resp.json(); throw new Error(err.detail || 'Recommendation failed'); }
+                const data = await resp.json();
+                displayCropResults(data.recommendations);
+            } catch (err) {
+                showToast(err.message);
+            } finally {
+                spinner.classList.remove('visible');
+            }
+        });
+
+        function displayCropResults(recommendations) {
+            const grid = document.getElementById('cropResultsGrid');
+            grid.innerHTML = '';
+            const rankLabels = ['🥇 Best Match', '🥈 2nd Best', '🥉 3rd Best'];
+
+            recommendations.forEach((rec, i) => {
+                const card = document.createElement('div');
+                card.className = 'crop-card';
+                card.style.opacity = '0';
+                card.style.animation = `staggerFadeIn 0.4s ease forwards ${i * 0.1}s`;
+                card.innerHTML = `
+            <div class="crop-rank rank-${i + 1}">${rankLabels[i]}</div>
+            <div class="crop-emoji">${cropEmojis[rec.crop] || '🌱'}</div>
+            <h4>${rec.crop}</h4>
+            <div class="crop-conf">${rec.confidence}<span>%</span></div>
+        `;
+                grid.appendChild(card);
+            });
+            document.getElementById('cropResults').classList.add('visible');
+        }
+
+        // ══════════════════════════════════════════════════
+        //  FEATURE 3: WEATHER
+        // ══════════════════════════════════════════════════
+        let lastWeatherData = null;
+        const weatherCityInput = document.getElementById('weatherCityInput');
+
+        document.getElementById('getWeatherBtn').addEventListener('click', fetchWeather);
+        weatherCityInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') fetchWeather(); });
+
+        async function fetchWeather() {
+            const city = weatherCityInput.value.trim();
+            if (!city) { showToast('Please enter a city name'); return; }
+
+            const spinner = document.getElementById('weatherSpinner');
+            const display = document.getElementById('weatherDisplay');
+            display.classList.remove('visible');
+            document.getElementById('autofillBar').classList.remove('visible');
+            spinner.classList.add('visible');
+
+            try {
+                const resp = await fetch(`/weather/${encodeURIComponent(city)}`);
+                if (!resp.ok) { const err = await resp.json(); throw new Error(err.detail || 'City not found'); }
+                const data = await resp.json();
+                lastWeatherData = data;
+                displayWeather(data);
+            } catch (err) {
+                showToast(err.message);
+            } finally {
+                spinner.classList.remove('visible');
+            }
+        }
+
+        function displayWeather(data) {
+            document.getElementById('weatherCity').textContent = `${data.city}, ${data.country}`;
+            document.getElementById('weatherCondition').textContent = data.condition;
+            document.getElementById('weatherIcon').src = `https://openweathermap.org/img/wn/${data.icon}@2x.png`;
+            document.getElementById('weatherTemp').innerHTML = `${data.temperature}<span>°C</span>`;
+            document.getElementById('weatherHumidity').textContent = data.humidity + '%';
+            document.getElementById('weatherRainfall').textContent = data.rainfall + ' mm';
+            document.getElementById('weatherWind').textContent = data.wind_speed + ' m/s';
+            document.getElementById('weatherDisplay').classList.add('visible');
+            document.getElementById('autofillBar').classList.add('visible');
+        }
+
+        document.getElementById('autofillBtn').addEventListener('click', () => {
+            if (!lastWeatherData) return;
+            document.getElementById('cropTemp').value = lastWeatherData.temperature;
+            document.getElementById('cropHumidity').value = lastWeatherData.humidity;
+            document.getElementById('cropRainfall').value = Math.max(20, lastWeatherData.rainfall || 20);
+            // Switch to crop tab
+            document.querySelector('[data-tab="crop"]').click();
+            showToast('Weather data filled into crop form!', 'success');
+        });
+
+        // ══════════════════════════════════════════════════
+        //  FEATURE 4: AI CHAT
+        // ══════════════════════════════════════════════════
+        let chatHistory = [];
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+
+        document.getElementById('chatSendBtn').addEventListener('click', sendChat);
+        chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) sendChat(); });
+
+        async function sendChat() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            document.getElementById('chatEmpty').style.display = 'none';
+            appendBubble(message, 'user');
+            chatInput.value = '';
+
+            const spinner = document.getElementById('chatSpinner');
+            spinner.classList.add('visible');
+            document.getElementById('chatSendBtn').disabled = true;
+
+            try {
+                const resp = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message, history: chatHistory })
+                });
+                if (!resp.ok) { const err = await resp.json(); throw new Error(err.detail || 'Chat error'); }
+                const data = await resp.json();
+                chatHistory.push({ role: 'user', content: message });
+                chatHistory.push({ role: 'assistant', content: data.reply });
+                appendBubble(data.reply, 'assistant');
+            } catch (err) {
+                showToast(err.message);
+            } finally {
+                spinner.classList.remove('visible');
+                document.getElementById('chatSendBtn').disabled = false;
+                chatInput.focus();
+            }
+        }
+
+        function appendBubble(text, role) {
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${role}`;
+            if (role === 'assistant') {
+                bubble.innerHTML = `<div class="bubble-label">🌿 FarmAI</div>${formatChatText(text)}`;
+            } else {
+                bubble.textContent = text;
+            }
+            chatMessages.appendChild(bubble);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function formatChatText(text) {
+            // Basic markdown: bold, newlines, lists
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n- /g, '<br>• ')
+                .replace(/\n(\d+)\. /g, '<br>$1. ')
+                .replace(/\n/g, '<br>');
+        }
+    </script>
+</body>
+
+</html>
